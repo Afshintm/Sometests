@@ -1,4 +1,5 @@
 using System;
+using System.Reflection;
 using FluentAssertions;
 using Xunit;
 
@@ -46,10 +47,44 @@ namespace SomeTest
             a.Should().Be(String.Empty);
             var c = dummyClass.MigrationEvent?.ToString();
             var d = dummyClass.MigrationEvent!.ToString();
+        }
 
+        [Fact]
+        public void ReflectionPropertyValueTest()
+        {
+            var p = new Person() {Name = "Afshin"};
+            var value = p.GetPropertyValue<string>("Name");
+            value.Should().Be("Afshin");
+        }
+
+        [Fact]
+        public void ReflectionAttributeValueTest()
+        {
+            BindingFlags bindFlags = BindingFlags.GetProperty | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static;
+            var p = new Person() { Name = "Afshin" };
+            var theType = typeof(Person);
+            var attributes = System.Attribute.GetCustomAttributes(theType);
             
-            
-            
+            foreach (var attr in attributes)
+            {
+                if (attr is PriorityAttribute)
+                {
+                    var b = (PriorityAttribute) attr;
+                    var propertyInfo = typeof(PriorityAttribute).GetProperty("Value", bindFlags);
+                    var val = propertyInfo?.GetValue(b);
+                    val.Should().Be(10);
+                }
+
+                if (attr is MyDescriptionAttribute)
+                {
+                    var myDescriptionAttribute = (MyDescriptionAttribute)attr;
+                    var filedInfo =  typeof(MyDescriptionAttribute).GetField("_value",bindFlags);
+                    var val = filedInfo?.GetValue(myDescriptionAttribute);
+                    val.Should().Be("Hello");
+                }
+            }
+
+            p.Name.Should().Be("Afshin");
         }
 
     }

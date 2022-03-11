@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace SomeTest
 {
@@ -17,7 +19,23 @@ namespace SomeTest
             var result = propertyInfo?.GetValue(obj, null);
             return (T)result!;
         }
+        public static JsonSerializerOptions DefaultSerializerOptions = new JsonSerializerOptions
+        {
+            WriteIndented = false,
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+            PropertyNameCaseInsensitive = true,
+            IgnoreNullValues = true,
+            Converters = { new JsonStringEnumConverter(allowIntegerValues: false) }
+        };
+        public static string ToJson<T>(this T objectToSerialize)
+        {
+            return JsonSerializer.Serialize(objectToSerialize, DefaultSerializerOptions);
+        }
 
+        public static T FromJson<T>(this string json)
+        {
+            return JsonSerializer.Deserialize<T>(json, DefaultSerializerOptions)!;
+        }
     }
     
 }

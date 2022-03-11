@@ -12,7 +12,7 @@ namespace SomeTest
         public Dummy2? Dummy2 { get; set; }
     }
 
-    public class UnitTest1
+    public class SomeTests
     {
         [Fact]
         public void GenerateGuidUniqueStringTest()
